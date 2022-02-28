@@ -30,7 +30,7 @@ def face_mesh(
 
                 if landmark_connections:
                     connections=mp_face_mesh.FACEMESH_CONTOURS
-                else:
+                if landmark_connections is False:
                     connections=None
             
                 mp_draw.draw_landmarks(
