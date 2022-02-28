@@ -3,10 +3,12 @@ import mediapipe as mp
 import time
 
 def face_mesh(
-    num_faces=2,
-    p_time=0, draw_thick=1, draw_circle_radius=1,
-    draw_color=(0, 255, 0), display_face_id=False,
-    landmark_connections=True, face_id_font_scale=1,
+    num_faces=2, display_fps=False, fps_font_scale=2,
+    fps_color=(255, 0, 255), fps_thickness=1,
+    p_time=0, landmark_drawing_spec=False,
+    draw_thick=1, draw_circle_radius=1,
+    draw_color=(0, 255, 0), landmark_connections=False,
+    display_face_id=False, face_id_font_scale=1,
     face_id_color=(0, 255, 0), face_id_thickness=1
 ):
     cap = cv2.VideoCapture(0)
@@ -32,11 +34,16 @@ def face_mesh(
                     connections=mp_face_mesh.FACEMESH_CONTOURS
                 if landmark_connections is False:
                     connections=None
+
+                if landmark_drawing_spec:
+                    landmark_drawing_spec=draw_spec
+                if landmark_drawing_spec is False:
+                    connections=None
             
                 mp_draw.draw_landmarks(
                     image=img, landmark_list=face_lm,
                     connections=connections,
-                    landmark_drawing_spec=draw_spec
+                    landmark_drawing_spec=landmark_drawing_spec
                 )
                 if display_face_id:
                     for id, lm in enumerate(face_lm.landmark):
@@ -50,16 +57,16 @@ def face_mesh(
                             face_id_thickness
                         )
 
-            
 
-        c_time = time.time()
-        fps = 1 / (c_time - p_time)
-        p_time = c_time
-        cv2.putText(
-            img, f'FPS: {int(fps)}',
-            (10, 60), cv2.FONT_HERSHEY_PLAIN,
-            2, (255, 0, 255), 2
-        )
+        if display_fps:
+            c_time = time.time()
+            fps = 1 / (c_time - p_time)
+            p_time = c_time
+            cv2.putText(
+                img, f'FPS: {int(fps)}',
+                (10, 60), cv2.FONT_HERSHEY_PLAIN,
+                fps_font_scale, fps_color, fps_thickness
+            )
 
-    cv2.imshow("Image", img)
-    cv2.waitKey(1)
+        cv2.imshow("Image", img)
+        cv2.waitKey(1)
